@@ -36,7 +36,7 @@ jobs:
           script: cd private-repo ./gradlew connectedCheck --info --stacktrac --console=plain
 
       - name: Upload test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-test-reports
           path: private-repo/app/build/reports/androidTests/connected
