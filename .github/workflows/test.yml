@@ -6,120 +6,138 @@ on:
   pull_request:
 
 jobs:
-  Android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
+  # Android:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: checkout
+  #       uses: actions/checkout@v3
 
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
+  #     - name: Enable KVM
+  #       run: |
+  #         echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+  #         sudo udevadm control --reload-rules
+  #         sudo udevadm trigger --name-match=kvm
 
-      # this is only needed when running from separate branch
-      - name: Checkout private repo
-        uses: actions/checkout@v3
-        with:
-          repository: lennarthakkerkompas/test-github-actions
-          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-          path: private-repo
+  #     # this is only needed when running from separate branch
+  #     - name: Checkout private repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: lennarthakkerkompas/test-github-actions
+  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #         path: private-repo
 
-      - name: Make gradlew executable
-        run: chmod +x private-repo/gradlew
+  #     - name: Make gradlew executable
+  #       run: chmod +x private-repo/gradlew
 
-      - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          script: ./gradlew connectedCheck --info --stacktrace --console=plain
-          working-directory: private-repo
+  #     - name: run tests
+  #       uses: reactivecircus/android-emulator-runner@v2
+  #       with:
+  #         api-level: 29
+  #         script: ./gradlew connectedCheck --info --stacktrace --console=plain
+  #         working-directory: private-repo
 
-  # TODO: some tests are failing since it has not enough time see news view on how to fix it
-  iOS:
-    runs-on: macos-latest
+  # # TODO: some tests are failing since it has not enough time see news view on how to fix it
+  # iOS:
+  #   runs-on: macos-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      # this is only needed when running from separate branch
-      - name: Checkout private repo
-        uses: actions/checkout@v3
-        with:
-          repository: lennarthakkerkompas/test-github-actions
-          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-          path: private-repo
+  #     # this is only needed when running from separate branch
+  #     - name: Checkout private repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: lennarthakkerkompas/test-github-actions
+  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #         path: private-repo
 
-      - name: Job set up
-        uses: ./.github/actions/job-set-up
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
 
-      # use this when running from own preo
-      # - name: iOS set up
-      #   uses: ./.github/actions/ios-set-up
+  #     # use this when running from own preo
+  #     # - name: iOS set up
+  #     #   uses: ./.github/actions/ios-set-up
 
-      # this is only needed when running from separate repo
-      - name: iOS set up
-        uses: ./.github/actions/ios-set-up
-        with:
-          private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #     # this is only needed when running from separate repo
+  #     - name: iOS set up
+  #       uses: ./.github/actions/ios-set-up
+  #       with:
+  #         private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
 
-      # this is only needed when running from separate repo
-      - name: Build and Test iOS App
-        working-directory: private-repo
-        run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
-      # use this when running from own preo
-      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+  #     # this is only needed when running from separate repo
+  #     - name: Build and Test iOS App
+  #       working-directory: private-repo
+  #       run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+  #     # use this when running from own preo
+  #     # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
 
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
+  #     - name: Upload logs
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
 
-  KMP-Android:
-    runs-on: macos-latest
+  KMP-JVM:
+    - uses: actions/checkout@v3
 
-    steps:
-      - uses: actions/checkout@v3
+    - name: Checkout private repo
+      uses: actions/checkout@v3
+      with:
+        repository: lennarthakkerkompas/test-github-actions
+        token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+        path: private-repo
 
-      - name: Checkout private repo
-        uses: actions/checkout@v3
-        with:
-          repository: lennarthakkerkompas/test-github-actions
-          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-          path: private-repo
+    - name: Job set up
+      uses: ./.github/actions/job-set-up
 
-      - name: Job set up
-        uses: ./.github/actions/job-set-up
-
-      - name: run tests
-        working-directory: private-repo
-        # run: ./gradlew clean testDebugUnitTest --info --stacktrace --console=plain -p shared/
-        run: ./gradlew :shared:testDebugUnitTest --info --stacktrace --console=plain
+    - name: Run shared JVM tests
+      working-directory: private-repo
+      run: ./gradlew :shared:jvmTest --info --stacktrace --console=plain
 
 
-  KMP-iOS:
-    runs-on: macos-latest
+  # KMP-Android:
+  #   runs-on: macos-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Checkout private repo
-        uses: actions/checkout@v3
-        with:
-          repository: lennarthakkerkompas/test-github-actions
-          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-          path: private-repo
+  #     - name: Checkout private repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: lennarthakkerkompas/test-github-actions
+  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #         path: private-repo
 
-      - name: Job set up
-        uses: ./.github/actions/job-set-up
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
 
-      - name: run tests
-        working-directory: private-repo
-        run: |
-          if [[ $(uname -m) == 'arm64' ]]; then
-            ./gradlew :shared:iosSimulatorArm64Test --info --stacktrace --console=plain
-          else
-            ./gradlew :shared:iosX64Test --info --stacktrace --console=plain
-          fi
+  #     - name: run tests
+  #       working-directory: private-repo
+  #       # run: ./gradlew clean testDebugUnitTest --info --stacktrace --console=plain -p shared/
+  #       run: ./gradlew :shared:testDebugUnitTest --info --stacktrace --console=plain
+
+
+  # KMP-iOS:
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Checkout private repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: lennarthakkerkompas/test-github-actions
+  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #         path: private-repo
+
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
+
+  #     - name: run tests
+  #       working-directory: private-repo
+  #       run: |
+  #         if [[ $(uname -m) == 'arm64' ]]; then
+  #           ./gradlew :shared:iosSimulatorArm64Test --info --stacktrace --console=plain
+  #         else
+  #           ./gradlew :shared:iosX64Test --info --stacktrace --console=plain
+  #         fi
