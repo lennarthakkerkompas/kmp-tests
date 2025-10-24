@@ -27,11 +27,10 @@ jobs:
           path: private-repo
 
       - name: run tests
-        working-directory: private-repo # this is only needed when running from separate branch
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew connectedCheck
+          script: ./gradlew connectedCheck -p private-repo/
 
 
   # TODO: we need to add compose ui tests
