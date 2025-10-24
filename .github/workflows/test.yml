@@ -33,7 +33,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: cd private-repo ./gradlew connectedCheck
+          script: cd private-repo ./gradlew connectedCheck --info --stacktrace
 
 
   # TODO: we need to add compose ui tests
