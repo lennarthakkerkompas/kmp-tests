@@ -39,8 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-test-reports
-          path: private-repo/app/build/reports/androidTests/connected
-
+          path: private-repo/androidApp/build/reports/androidTests/connected
 
   # TODO: we need to add compose ui tests
   # Android:
