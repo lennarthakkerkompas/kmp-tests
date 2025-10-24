@@ -3,9 +3,17 @@ description: Sets up Kotlin Native and Cocoapods
 runs:
   using: "composite"
   steps:
+    # this is only needed when running from separate repo
+    - name: Checkout private repo
+      uses: actions/checkout@v3
+      with:
+        repository: lennarthakkerkompas/test-github-actions
+        token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+        path: private-repo
+
     - name: Resolve Swift Package Dependencies
       shell: bash
-      working-directory: ${{ github.workspace }}/private-repo/iosApp # this is only needed when running from separate repo
+      working-directory: private-repo/iosApp # this is only needed when running from separate repo
       run: |
         cd iosApp
         xcodebuild -resolvePackageDependencies -scheme iosApp -quiet
