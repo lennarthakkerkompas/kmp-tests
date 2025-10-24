@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    # branches: [ main ]
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -26,13 +26,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
+
       - name: Job set up
         uses: ./.github/actions/job-set-up
 
       - name: iOS set up
         uses: ./.github/actions/ios-set-up
 
-      - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+
+      - name: Build and Test iOS App
+        working-directory: private-repo/iosApp
+        run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
 
       - name: Upload logs
         if: always()
