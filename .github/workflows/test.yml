@@ -78,21 +78,24 @@ jobs:
   #         path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
 
   KMP-JVM:
-    - uses: actions/checkout@v3
+    runs-on: ubuntu-latest
 
-    - name: Checkout private repo
-      uses: actions/checkout@v3
-      with:
-        repository: lennarthakkerkompas/test-github-actions
-        token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-        path: private-repo
+    steps:
+      - uses: actions/checkout@v3
 
-    - name: Job set up
-      uses: ./.github/actions/job-set-up
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
 
-    - name: Run shared JVM tests
-      working-directory: private-repo
-      run: ./gradlew :shared:jvmTest --info --stacktrace --console=plain
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
+
+      - name: Run shared JVM tests
+        working-directory: private-repo
+        run: ./gradlew :shared:jvmTest --info --stacktrace --console=plain
 
 
   # KMP-Android:
