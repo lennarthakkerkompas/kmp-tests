@@ -1,0 +1,63 @@
+name: Tests
+
+on:
+  push:
+    # branches: [ main ]
+  pull_request:
+
+jobs:
+  # TODO: we need to add compose ui tests
+  # Android:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
+
+  #     - run: ./gradlew clean testDebug -p androidApp/
+
+  # TODO: all the tests that uses room are failing
+  # TODO: NewsViewUnitTests is also failing maybe we should start with debuging this test
+  iOS:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
+
+      - name: iOS set up
+        uses: ./.github/actions/ios-set-up
+
+      - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
+
+  # KMP-Android:
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
+
+  #     - run: ./gradlew clean testDebugUnitTest -p shared/
+
+  # KMP-iOS:
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
+
+  #     - run: if [[ $(uname -m) == 'arm64' ]]; then ./gradlew clean iosSimulatorArm64Test -p shared/; else ./gradlew clean iosX64Test -p shared/; fi
