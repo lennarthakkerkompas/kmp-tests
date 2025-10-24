@@ -20,11 +20,11 @@ jobs:
         with:
           api-level: 30
           target: google_apis
-          arch: x86
+          arch: x86_64
           profile: Nexus 6
           disable-animations: true
           force-avd-creation: true
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: ./gradlew connectedDebugAndroidTest -p androidApp/
   # TODO: we need to add compose ui tests
   # Android:
