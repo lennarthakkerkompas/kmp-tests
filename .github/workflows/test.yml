@@ -36,7 +36,6 @@ jobs:
           script: cd private-repo ./gradlew connectedCheck
 
 
-
   # TODO: we need to add compose ui tests
   # Android:
   #   runs-on: ubuntu-latest
