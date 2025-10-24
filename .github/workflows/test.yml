@@ -37,9 +37,15 @@ jobs:
       - name: Job set up
         uses: ./.github/actions/job-set-up
 
+      # use this when running from own preo
+      # - name: iOS set up
+      #   uses: ./.github/actions/ios-set-up
+
+      # this is only needed when running from separate repo
       - name: iOS set up
         uses: ./.github/actions/ios-set-up
-
+        with:
+          private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
 
       # this is only needed when running from separate repo
       - name: Build and Test iOS App
