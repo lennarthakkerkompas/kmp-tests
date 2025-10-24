@@ -6,6 +6,24 @@ on:
   pull_request:
 
 jobs:
+  Android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
+
+      - name: Run unit and Compose UI tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: Pixel_7
+          emulator-options: -no-window -no-audio
+          script: ./gradlew clean connectedCheck -p androidApp/
   # TODO: we need to add compose ui tests
   # Android:
   #   runs-on: ubuntu-latest
@@ -16,49 +34,52 @@ jobs:
   #     - name: Job set up
   #       uses: ./.github/actions/job-set-up
 
-  #     - run: ./gradlew clean testDebug -p androidApp/
+  #     - name: Run unit tests
+  #       run: ./gradlew clean testDebug -p androidApp/
 
-  # TODO: all the tests that uses room are failing
-  # TODO: NewsViewUnitTests is also failing maybe we should start with debuging this test
-  iOS:
-    runs-on: macos-latest
+  #     - name: Run Compose UI tests
+  #       run: ./gradlew connectedDebugAndroidTest -p androidApp/
 
-    steps:
-      - uses: actions/checkout@v3
+  # TODO: some tests are failing since it has not enough time see news view on how to fix it
+  # iOS:
+  #   runs-on: macos-latest
 
-      # this is only needed when running from separate branch
-      - name: Checkout private repo
-        uses: actions/checkout@v3
-        with:
-          repository: lennarthakkerkompas/test-github-actions
-          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-          path: private-repo
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Job set up
-        uses: ./.github/actions/job-set-up
+  #     # this is only needed when running from separate branch
+  #     - name: Checkout private repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: lennarthakkerkompas/test-github-actions
+  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #         path: private-repo
 
-      # use this when running from own preo
-      # - name: iOS set up
-      #   uses: ./.github/actions/ios-set-up
+  #     - name: Job set up
+  #       uses: ./.github/actions/job-set-up
 
-      # this is only needed when running from separate repo
-      - name: iOS set up
-        uses: ./.github/actions/ios-set-up
-        with:
-          private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+  #     # use this when running from own preo
+  #     # - name: iOS set up
+  #     #   uses: ./.github/actions/ios-set-up
 
-      # this is only needed when running from separate repo
-      - name: Build and Test iOS App
-        working-directory: private-repo
-        run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
-      # use this when running from own preo
-      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+  #     # this is only needed when running from separate repo
+  #     - name: iOS set up
+  #       uses: ./.github/actions/ios-set-up
+  #       with:
+  #         private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
 
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
+  #     # this is only needed when running from separate repo
+  #     - name: Build and Test iOS App
+  #       working-directory: private-repo
+  #       run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+  #     # use this when running from own preo
+  #     # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+
+  #     - name: Upload logs
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
 
   # KMP-Android:
   #   runs-on: macos-latest
