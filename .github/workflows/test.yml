@@ -49,7 +49,7 @@ jobs:
 
       # this is only needed when running from separate repo
       - name: Build and Test iOS App
-        working-directory: private-repo/iosApp
+        working-directory: private-repo
         run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
       # use this when running from own preo
       # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
