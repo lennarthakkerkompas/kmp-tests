@@ -33,7 +33,13 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: cd private-repo ./gradlew connectedCheck --info --stacktrace
+          script: cd private-repo ./gradlew connectedCheck --info --stacktrace --console=plain
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-test-reports
+          path: private-repo/app/build/reports/androidTests/connected
 
 
   # TODO: we need to add compose ui tests
