@@ -7,43 +7,31 @@ on:
 
 jobs:
   Android:
-    runs-on: macos-latest
-
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v3
 
-      - name: Job set up
-        uses: ./.github/actions/job-set-up
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
-      # - name: Enable KVM
-      #   run: |
-      #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-      #     sudo udevadm control --reload-rules
-      #     sudo udevadm trigger --name-match=kvm
+      # this is only needed when running from separate branch
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
 
-      - name: start android emulator
+      - name: run tests
+        working-directory: private-repo # this is only needed when running from separate branch
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: google_apis
-          arch: xarm64-v8a
-          script: |
-           adb wait-for-device
-           adb shell input keyevent 82
-           adb devices
-           ./gradlew connectedDebugAndroidTest -p androidApp/
-
-      # - name: Run all tests (unit + UI)
-      #   uses: reactivecircus/android-emulator-runner@v2
-      #   with:
-      #     api-level: 30
-      #     target: google_apis
-      #     arch: x86_64
-      #     profile: Nexus 6
-      #     # disable-animations: true
-      #     force-avd-creation: true
-      #     # emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-      #     script: ./gradlew connectedDebugAndroidTest -p androidApp/
+          api-level: 29
+          script: ./gradlew connectedCheck
 
 
   # TODO: we need to add compose ui tests
