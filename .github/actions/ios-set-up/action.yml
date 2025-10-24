@@ -5,6 +5,7 @@ runs:
   steps:
     - name: Resolve Swift Package Dependencies
       shell: bash
+      working-directory: ${{ github.workspace }}/private-repo/iosApp # this is only needed when running from separate repo
       run: |
         cd iosApp
         xcodebuild -resolvePackageDependencies -scheme iosApp -quiet

@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # this is only needed when running from separate branch
       - name: Checkout private repo
         uses: actions/checkout@v3
         with:
@@ -39,11 +40,13 @@ jobs:
       - name: iOS set up
         uses: ./.github/actions/ios-set-up
 
-      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
 
+      # this is only needed when running from separate repo
       - name: Build and Test iOS App
         working-directory: private-repo/iosApp
         run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+      # use this when running from own preo
+      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
 
       - name: Upload logs
         if: always()
