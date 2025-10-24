@@ -33,95 +33,86 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          # script: cd private-repo ./gradlew connectedCheck --info --stacktrac --console=plain
           script: ./gradlew connectedCheck --info --stacktrace --console=plain
           working-directory: private-repo
 
-      # - name: Test
-      #   working-directory: private-repo
-      #   script: ./gradlew connectedCheck --info --stacktrac --console=plain
+  # TODO: some tests are failing since it has not enough time see news view on how to fix it
+  iOS:
+    runs-on: macos-latest
 
-      - name: Upload test reports
+    steps:
+      - uses: actions/checkout@v3
+
+      # this is only needed when running from separate branch
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
+
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
+
+      # use this when running from own preo
+      # - name: iOS set up
+      #   uses: ./.github/actions/ios-set-up
+
+      # this is only needed when running from separate repo
+      - name: iOS set up
+        uses: ./.github/actions/ios-set-up
+        with:
+          private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+
+      # this is only needed when running from separate repo
+      - name: Build and Test iOS App
+        working-directory: private-repo
+        run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+      # use this when running from own preo
+      # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
+
+      - name: Upload logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-test-reports
-          path: private-repo/androidApp/build/reports/androidTests/connected
+          path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
 
-  # TODO: we need to add compose ui tests
-  # Android:
-  #   runs-on: ubuntu-latest
+  KMP-Android:
+    runs-on: macos-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Job set up
-  #       uses: ./.github/actions/job-set-up
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
 
-  #     - name: Run unit tests
-  #       run: ./gradlew clean testDebug -p androidApp/
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
 
-  #     - name: Run Compose UI tests
-  #       run: ./gradlew connectedDebugAndroidTest -p androidApp/
+      - name: run tests
+        working-directory: private-repo
+        run: ./gradlew clean testDebugUnitTest --info --stacktrace --console=plain -p shared/
 
-  # TODO: some tests are failing since it has not enough time see news view on how to fix it
-  # iOS:
-  #   runs-on: macos-latest
+  KMP-iOS:
+    runs-on: macos-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     # this is only needed when running from separate branch
-  #     - name: Checkout private repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: lennarthakkerkompas/test-github-actions
-  #         token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-  #         path: private-repo
+      - name: Checkout private repo
+        uses: actions/checkout@v3
+        with:
+          repository: lennarthakkerkompas/test-github-actions
+          token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
+          path: private-repo
 
-  #     - name: Job set up
-  #       uses: ./.github/actions/job-set-up
+      - name: Job set up
+        uses: ./.github/actions/job-set-up
 
-  #     # use this when running from own preo
-  #     # - name: iOS set up
-  #     #   uses: ./.github/actions/ios-set-up
-
-  #     # this is only needed when running from separate repo
-  #     - name: iOS set up
-  #       uses: ./.github/actions/ios-set-up
-  #       with:
-  #         private_repo_token: ${{ secrets.TEST_GITHUB_ACTIONS_PATH }}
-
-  #     # this is only needed when running from separate repo
-  #     - name: Build and Test iOS App
-  #       working-directory: private-repo
-  #       run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
-  #     # use this when running from own preo
-  #     # - run: xcodebuild build test -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphoneos -destination "platform=iOS Simulator,name=iPhone 16,OS=18.6" -verbose
-
-  #     - name: Upload logs
-  #       if: always()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         path: "/Users/runner/Library/Developer/Xcode/DerivedData/*"
-
-  # KMP-Android:
-  #   runs-on: macos-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v3
-
-  #     - name: Job set up
-  #       uses: ./.github/actions/job-set-up
-
-  #     - run: ./gradlew clean testDebugUnitTest -p shared/
-
-  # KMP-iOS:
-  #   runs-on: macos-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v3
-
-  #     - name: Job set up
-  #       uses: ./.github/actions/job-set-up
-
-  #     - run: if [[ $(uname -m) == 'arm64' ]]; then ./gradlew clean iosSimulatorArm64Test -p shared/; else ./gradlew clean iosX64Test -p shared/; fi
+      - name: run tests
+        working-directory: private-repo
+        run: if [[ $(uname -m) == 'arm64' ]]; then ./gradlew clean iosSimulatorArm64Test --info --stacktrace --console=plain -p shared/; else ./gradlew clean iosX64Test --info --stacktrace --console=plain -p shared/; fi
