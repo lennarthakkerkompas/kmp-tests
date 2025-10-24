@@ -15,14 +15,16 @@ jobs:
       - name: Job set up
         uses: ./.github/actions/job-set-up
 
-      - name: Run unit and Compose UI tests
+      - name: Run all tests (unit + UI)
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: 33                   # ✅ 33 is the most stable for CI
+          target: google_apis             # Matches typical CI test setup
           arch: x86_64
-          profile: pixel_7_pro
-          emulator-options: -no-window -no-audio
+          profile: pixel
+          disable-animations: true
+          force-avd-creation: true
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: ./gradlew clean connectedCheck -p androidApp/
   # TODO: we need to add compose ui tests
   # Android:
